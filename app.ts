@@ -3,6 +3,7 @@ import {Component} from "angular2/core";
 
 @Component({
   selector: 'reddit-article',
+  inputs: ['article'],
   host: {
     class: 'row'
   },
@@ -42,9 +43,9 @@ import {Component} from "angular2/core";
 class ArticleComponent {
   article: Article;
 
-  constructor() {
-    this.article = new Article('Angular 2', 'http://angular.io', 10)
-  }
+  // constructor() {
+  //   this.article = new Article('Angular 2', 'http://angular.io', 10)
+  // }
 
   voteUp(): boolean {
     this.article.voteUp();
@@ -104,13 +105,24 @@ class Article {
     </form>
 
     <div clas="ui grid posts">
-      <reddit-article></reddit-article>
+      <reddit-article
+        *ngFor="#article of articles"
+        [article]="article">
+      </reddit-article>
     </div>
   `
 })
 
 class RedditApp {
-  constructor() {}
+  articles: Article[];
+
+  constructor() {
+    this.articles = [
+      new Article('Angular 2', 'http://angular.io', 3),
+      new Article('FullStack', 'http://fullstack.io', 2),
+      new Article('Angular Homepage', 'http://angular.io', 1)
+    ];
+  }
 
   addArticle(title: HTMLInputElement, link: HTMLInputElement): void {
     console.log(`Adding article title: ${title.value} and link: ${link.value}`);

@@ -1,6 +1,37 @@
 import {bootstrap} from "angular2/platform/browser";
 import {Component} from "angular2/core";
 
+class Article {
+  title: string;
+  link: string;
+  votes: number;
+
+  constructor(title: string, link: string, votes?: number) {
+    this.title = title;
+    this.link = link;
+    this.votes = votes || 0;
+  }
+
+  domain(): string {
+    try {
+      const link: string = this.link.split('//')[1];
+      return link.split('/')[0];
+    }
+    catch(err) {
+      return null;
+    }
+  }
+
+  voteUp(): void {
+    this.votes += 1;
+  }
+
+  voteDown(): void {
+    this.votes -= 1;
+  }
+
+}
+
 @Component({
   selector: 'reddit-article',
   inputs: ['article'],
@@ -22,6 +53,9 @@ import {Component} from "angular2/core";
       <a class="ui large header" href="{{ article.link }}">
         {{ article.title }}
       </a>
+
+      <div class="meta">({{ article.domain() }})</div>
+
       <ul class="ui big horizontal list voters">
         <li class="item">
           <a href (click)="voteUp()">
@@ -43,10 +77,6 @@ import {Component} from "angular2/core";
 class ArticleComponent {
   article: Article;
 
-  // constructor() {
-  //   this.article = new Article('Angular 2', 'http://angular.io', 10)
-  // }
-
   voteUp(): boolean {
     this.article.voteUp();
     return false;
@@ -55,27 +85,6 @@ class ArticleComponent {
   voteDown(): boolean {
     this.article.voteDown();
     return false;
-  }
-
-}
-
-class Article {
-  title: string;
-  link: string;
-  votes: number;
-
-  constructor(title: string, link: string, votes?: number) {
-    this.title = title;
-    this.link = link;
-    this.votes = votes || 0;
-  }
-
-  voteUp(): void {
-    this.votes += 1;
-  }
-
-  voteDown(): void {
-    this.votes -= 1;
   }
 
 }
@@ -106,7 +115,7 @@ class Article {
 
     <div clas="ui grid posts">
       <reddit-article
-        *ngFor="#article of articles"
+        *ngFor="#article of sortedArticles()"
         [article]="article">
       </reddit-article>
     </div>
@@ -126,6 +135,13 @@ class RedditApp {
 
   addArticle(title: HTMLInputElement, link: HTMLInputElement): void {
     console.log(`Adding article title: ${title.value} and link: ${link.value}`);
+    this.articles.push(new Article(title.value, link.value, 0));
+    title.value = '';
+    link.value = '';
+  }
+
+  sortedArticles(): Article[] {
+    return this.articles.sort( (a: Article, b: Article) => b.votes - a.votes );
   }
 
 }
